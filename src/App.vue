@@ -1,30 +1,26 @@
 <template>
-  <nav>
-    <router-link to="/">Home</router-link> |
-    <router-link to="/about">About</router-link>
-  </nav>
-  <router-view/>
+    <div class="main">
+        <router-view />
+    </div>
+    <div id="info">
+        Blog：<a href="https://blog.zhfsmy.cloud">SunnyBlog</a> Gitee：<a
+            href="https://gitee.com/zhanghaifeng0253">zhanghaifeng0253</a> GitHub：<a
+            href="https://github.com/2hangha1fen9">2hangha1fen9</a>
+        Powered By .Net 7 On Docker
+    </div>
 </template>
 
+<script lang="ts" setup>
+</script>
 <style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
+.main {
+    width: 820px;
+    max-width: 100%;
+    margin: 0 auto;
 }
 
-nav {
-  padding: 30px;
-}
-
-nav a {
-  font-weight: bold;
-  color: #2c3e50;
-}
-
-nav a.router-link-exact-active {
-  color: #42b983;
-}
-</style>
+#info {
+    position: fixed;
+    bottom: 0;
+    right: 20px;
+}</style>

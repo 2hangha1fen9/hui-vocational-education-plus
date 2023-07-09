@@ -1,17 +1,48 @@
 <!DOCTYPE html>
 <html lang="">
-  <head>
+
+<head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <link rel="icon" href="<%= BASE_URL %>favicon.ico">
-    <title><%= htmlWebpackPlugin.options.title %></title>
-  </head>
-  <body>
+    <title>
+        慧职教+
+    </title>
+    <script type="text/javascript"
+        src="http://api.map.baidu.com/getscript?type=webgl&v=3.0&ak=G4lEH1MjyxVOpYDBe087qGkfHjqmc3Am"></script>
+</head>
+<style>
+    * {
+        margin: 0;
+        padding: 0 auto;
+    }
+
+    html {
+        height: 100%;
+    }
+
+    body {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        overflow: overlay;
+    }
+
+    #app {
+        /* 我们希望 header 采用固定的高度，只占用必须的空间 */
+        /* 0 flex-grow, 0 flex-shrink, auto flex-basis */
+        flex: 2 0 auto;
+    }
+</style>
+
+<body>
     <noscript>
-      <strong>We're sorry but <%= htmlWebpackPlugin.options.title %> doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>
+        <strong>We're sorry but <%= htmlWebpackPlugin.options.title %> doesn't work properly without JavaScript enabled.
+                Please enable it to continue.</strong>
     </noscript>
     <div id="app"></div>
     <!-- built files will be auto injected -->
-  </body>
+</body>
+
 </html>
