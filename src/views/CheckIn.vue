@@ -4,8 +4,9 @@
         <div class="address">
             <p>签到坐标点： {{ currentAddress }} X:{{ parseFloat(point.lng).toFixed(6) }} Y:{{ parseFloat(point.lat).toFixed(6) }}
             </p>
-            <p>实习坐标点：{{ checkPoint.provinceName + checkPoint.cityName + checkPoint.districtName + checkPoint.address }} X:{{
-                checkPoint.locationY }} Y:{{ checkPoint.locationX }}</p>
+            <p>实习坐标点：{{ checkPoint?.provinceName ?? "" + checkPoint?.cityName ?? "" + checkPoint?.districtName ?? "" +
+                checkPoint?.address ?? "" }} X:{{
+        checkPoint?.locationY ?? 0 }} Y:{{ checkPoint?.locationX ?? 0 }}</p>
         </div>
         <div class="menu">
             <div class="check-btn">
@@ -18,8 +19,8 @@
                     :false-label="0" />
             </div>
             <div class="check-btn">
+                <el-button type="primary" @click="attachDialogVisible = true">签到附件设置</el-button>
                 <el-button type="primary" @click="resetPoint">坐标重置</el-button>
-                <el-button type="primary" @click="getRealLocation" :loading="geoLoading">获取真实位置</el-button>
                 <el-button :type="autoCheckBtnColor" @click="autoCheckDialogVisible = true">{{ autoCheckBtnText
                 }}</el-button>
             </div>
@@ -41,6 +42,9 @@
                 </el-timeline-item>
             </el-timeline>
         </el-card>
+        <el-dialog v-model="attachDialogVisible" title="签到附件设置" style="width: 600px; max-width: 100%">
+            1111
+        </el-dialog>
         <el-dialog v-model="autoCheckDialogVisible" title="自动签到" style="width: 600px; max-width: 100%">
             <el-form :model="autoCheck" label-width="90px">
                 <el-form-item label="签到坐标"> {{ autoCheck.label }} X:{{ autoCheck.locationX }} Y:{{ autoCheck.locationY }}
@@ -71,6 +75,7 @@
                 </span>
             </template>
         </el-dialog>
+
     </div>
     <!-- <div v-else>你还没有开始实习</div> -->
 </template>
@@ -189,6 +194,11 @@ const cancelAutoCheck = () => {
         autoCheckBtnColor.value = "primary"
     })
 }
+
+//附件设置
+//对话框
+const attachDialogVisible = ref(false)
+
 //签到
 const handleCheck = () => {
     check(checkIn).then((data) => {
@@ -214,23 +224,7 @@ const getAddress = () => {
         }
     })
 }
-//获取真实位置
-const geoLoading = ref(false)
-const getRealLocation = () => {
-    geoLoading.value = true
-    var geolocation = new Bmap.Geolocation()
-    // 开启SDK辅助定位
-    geolocation.enableSDKLocation()
-    geolocation.getCurrentPosition(function (r) {
-        if (this.getStatus() == 0) {
-            point.value = r.point
-            marker.value.setPosition(point.value)
-            map.centerAndZoom(point.value, 17)
-            getAddress()
-        }
-        geoLoading.value = false
-    })
-}
+
 //重置坐标
 const resetPoint = () => {
     point.value = new Bmap.Point(checkPoint.value.locationY, checkPoint.value.locationX)
@@ -241,7 +235,7 @@ const resetPoint = () => {
 //初始化地图
 const init = () => {
     map = new Bmap.Map("map")
-    point.value = new Bmap.Point(checkPoint.value.locationY, checkPoint.value.locationX) // 创建坐标点
+    point.value = new Bmap.Point(checkPoint.value.locationY ?? 0, checkPoint.value.locationX ?? 0) // 创建坐标点
     // 创建标记点
     marker.value = new Bmap.Marker(point.value, {
         enableDragging: true,

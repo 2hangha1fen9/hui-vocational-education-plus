@@ -1,18 +1,22 @@
 <template>
     <section class="identity-container">
-        <img id="bgBox" src="https://baotangguo.cn:8081/" />
+        <img id="bgBox" src="https://bing.img.run/uhd.php" />
         <section class="login-form">
-            <el-form :model="loginData" :rules="rules" size="large" ref="loginForm" status-icon @keyup.enter="handleLogin(loginForm)">
+            <el-form :model="loginData" :rules="rules" size="large" ref="loginForm" status-icon
+                @keyup.enter="handleLogin(loginForm)">
                 <el-form-item>
                     <h3 style="width: 100%">慧职教——重庆商务职业学院</h3>
                 </el-form-item>
                 <el-form-item prop="loginName">
-                    <el-input class="input-box" v-model="loginData.loginName" placeholder="请输入慧职教登录名" tabindex="1" autocomplete="on" />
+                    <el-input class="input-box" v-model="loginData.loginName" placeholder="请输入慧职教登录名" tabindex="1"
+                        autocomplete="on" />
                 </el-form-item>
                 <el-form-item prop="password">
-                    <el-input v-model="loginData.password" placeholder="请输入慧职教密码" tabindex="2" type="password" :show-password="true" />
+                    <el-input v-model="loginData.password" placeholder="请输入慧职教密码" tabindex="2" type="password"
+                        :show-password="true" />
                 </el-form-item>
-                <el-button :loading="loading" type="primary" style="width: 100%; margin-bottom: 30px" @click="handleLogin(loginForm)">登录</el-button>
+                <el-button :loading="loading" type="primary" style="width: 100%; margin-bottom: 30px"
+                    @click="handleLogin(loginForm)">登录</el-button>
             </el-form>
         </section>
     </section>
@@ -99,6 +103,7 @@ function handleLogin() {
     align-items: center;
     justify-content: center;
 }
+
 #bgBox {
     z-index: -1;
     position: fixed;
@@ -108,5 +113,4 @@ function handleLogin() {
     height: 100%;
     object-fit: cover;
     transition: opacity 1s, transform 0.25s, filter 0.25s;
-}
-</style>
+}</style>

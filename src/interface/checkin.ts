@@ -1,5 +1,5 @@
-
 export interface CheckIn {
+    id: string
     isAbnormal: number
     checkType: string
     studentId: number
@@ -12,4 +12,5 @@ export interface CheckIn {
     isEvection: number
     internshipId: number
     attachIds: number
+    createTime: string
 }

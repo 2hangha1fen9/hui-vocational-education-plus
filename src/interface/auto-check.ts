@@ -3,7 +3,7 @@ export interface AutoCheck {
     password: string
     schoolId: number
     email: string
-    startTime: string
+    startTime: Array<number>
     tFloat: boolean
     studentId: number
     internshipId: number
