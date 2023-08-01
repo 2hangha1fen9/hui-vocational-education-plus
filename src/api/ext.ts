@@ -69,3 +69,15 @@ export function deleteAttach(data: Attach) {
         data: data,
     })
 }
+
+//附件上传
+export function uploadAttach(formData: FormData) {
+    return request({
+        url: "/ext/UploadAttach",
+        headers: {
+            "content-type": "multipart/form-data",
+        },
+        method: "post",
+        data: formData,
+    })
+}

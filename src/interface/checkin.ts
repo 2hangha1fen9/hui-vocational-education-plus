@@ -11,6 +11,6 @@ export interface CheckIn {
     content: string
     isEvection: number
     internshipId: number
-    attachIds: number
+    attachIds: string
     createTime: string
 }

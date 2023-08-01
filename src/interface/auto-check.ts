@@ -12,4 +12,6 @@ export interface AutoCheck {
     lFloat: boolean
     label: number
     content: number
+    attachIds: Array<number>
+    randomAttach: boolean
 }

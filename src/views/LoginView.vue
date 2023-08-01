@@ -1,6 +1,6 @@
 <template>
     <section class="identity-container">
-        <img id="bgBox" src="https://bing.img.run/uhd.php" />
+        <img id="bgBox" src="https://bing.ioliu.cn/v1?w=1920&h=1080" />
         <section class="login-form">
             <el-form :model="loginData" :rules="rules" size="large" ref="loginForm" status-icon
                 @keyup.enter="handleLogin(loginForm)">
@@ -113,4 +113,5 @@ function handleLogin() {
     height: 100%;
     object-fit: cover;
     transition: opacity 1s, transform 0.25s, filter 0.25s;
-}</style>
+}
+</style>

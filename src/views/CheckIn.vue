@@ -10,15 +10,20 @@
         </div>
         <div class="menu">
             <div class="check-btn">
+
                 <el-button type="success" :disabled="disabled" @click="handleCheck">
                     <span v-if="!disabled">签到{{ time.hour }}:{{ time.min }}</span>
                     <span v-else>今日已签到</span>
                 </el-button>
                 <el-input style="padding-left: 10px" v-model="checkIn.content" placeholder="备注" clearable />
+                <el-tag style="margin-left: 10px;">已选择{{
+                    attachFileCheckedCount }}/{{ attachFileList.length }}个附件</el-tag>
                 <el-checkbox style="padding-left: 10px" v-model="checkIn.isEvection" label="出差" size="large" :true-label="1"
                     :false-label="0" />
+
             </div>
             <div class="check-btn">
+
                 <el-button type="primary" @click="attachDialogVisible = true">签到附件设置</el-button>
                 <el-button type="primary" @click="resetPoint">坐标重置</el-button>
                 <el-button :type="autoCheckBtnColor" @click="autoCheckDialogVisible = true">{{ autoCheckBtnText
@@ -43,7 +48,24 @@
             </el-timeline>
         </el-card>
         <el-dialog v-model="attachDialogVisible" title="签到附件设置" style="width: 600px; max-width: 100%">
-            1111
+            <el-upload v-model:file-list="attachFileList" action="#" :http-request="handleUploadAttach"
+                list-type="picture-card" :on-remove="(file) => deleteAttach(file)" :on-preview="handleAttachPreview"
+                ref="uploader">
+                <el-icon>
+                    <Plus />
+                </el-icon>
+                <template #file="scope">
+                    <div>
+                        <img :src="scope.file.url" style="object-fit: cover;height: 100%;width: 100%;">
+                        <el-checkbox v-model="scope.file.checked" size="large"
+                            style="position: absolute;top: 0px;left: 10px;" />
+                        <el-button type="danger" :icon="Delete" circle style="position: absolute;bottom: 10px;right: 10px;"
+                            @click="uploader.handleRemove(scope.file)" />
+                    </div>
+
+                </template>
+            </el-upload>
+
         </el-dialog>
         <el-dialog v-model="autoCheckDialogVisible" title="自动签到" style="width: 600px; max-width: 100%">
             <el-form :model="autoCheck" label-width="90px">
@@ -58,14 +80,19 @@
                             <el-time-picker v-model="timerPicker" format="HH:mm" />
                         </div>
                     </el-tooltip>
+                    <el-button style="margin-left: 10px;" @click="attachDialogVisible = true">已选择{{
+                        attachFileCheckedCount }}/{{ attachFileList.length }}个附件</el-button>
                 </el-form-item>
                 <el-form-item label="个性设置">
                     <el-checkbox style="padding-left: 10px" v-model="autoCheck.startTime[2]" label="周六签到" size="large"
                         :true-label="1" :false-label="0" />
                     <el-checkbox style="padding-left: 10px" v-model="autoCheck.startTime[3]" label="周日签到" size="large"
                         :true-label="1" :false-label="0" />
+                    <el-checkbox style="padding-left: 10px" v-model="autoCheck.randomAttach"
+                        :label="`随机上传所有附件(当前${attachFileList.length}个)`" size="large" @click="clearCheckedAttachFileList" />
                     <el-checkbox style="padding-left: 10px" v-model="autoCheck.tFloat" label="浮动时间" size="large" />
                     <el-checkbox style="padding-left: 10px" v-model="autoCheck.lFloat" label="浮动位置" size="large" />
+
                 </el-form-item>
             </el-form>
             <template #footer>
@@ -82,14 +109,20 @@
 
 <script setup lang="ts">
 import { useStore } from "vuex"
-import { ref, nextTick, reactive, onMounted } from "vue"
-import { getLocation, check, isCheck, checkHistory } from "@/api/checkin"
-import { subscribeCheckIn, unsubscribeCheckIn, getSubscribeInfo, getAppropriateTime } from "@/api/ext"
+import { ref, nextTick, reactive, watch } from "vue"
+import { getLocation, check, checkHistory } from "@/api/checkin"
+import { subscribeCheckIn, unsubscribeCheckIn, getSubscribeInfo, getAppropriateTime, uploadAttach, getAttachList, deleteAttach } from "@/api/ext"
+
+import {
+    Delete,
+} from '@element-plus/icons-vue'
 
 import { CheckPoint } from "@/interface/check-point"
 import { CheckIn } from "@/interface/CheckIn"
-import { ElMessage } from "element-plus"
+import { ElMessage, UploadRequestOptions } from "element-plus"
 import { AutoCheck } from "@/interface/auto-check"
+import { Attach } from "@/interface/attach"
+
 
 const store = useStore()
 const loginInfo = JSON.parse(store.getters["loginInfo"])
@@ -144,6 +177,8 @@ const autoCheck = reactive<AutoCheck>({
     lFloat: false,
     label: "",
     content: "",
+    attachIds: [],
+    randomAttach: false
 })
 
 //获取自动签到订阅信息
@@ -196,8 +231,71 @@ const cancelAutoCheck = () => {
 }
 
 //附件设置
+const uploader = ref()
 //对话框
 const attachDialogVisible = ref(false)
+//附件列表
+const attachFileList = ref([])
+const attachFileCheckedCount = ref(0)
+watch(attachFileList, (newVal, oldVal) => {
+    let checkedList = newVal.filter(i => i.checked);
+    attachFileCheckedCount.value = checkedList.length;
+    if (checkedList.length > 0) {
+        checkIn.attachIds = checkedList.map(i => i.id).join(',')
+        autoCheck.attachIds = checkedList.map(i => i.id)
+        autoCheck.randomAttach = false
+    }
+    else {
+        checkIn.attachIds = ""
+        autoCheck.attachIds = []
+    }
+}, {
+    deep: true
+})
+const clearCheckedAttachFileList = () => {
+    attachFileList.value.forEach(i => i.checked = false)
+}
+const getAttach = async () => {
+    var result = await getAttachList(JSON.parse(store.getters['loginInfo']).loginName)
+    if (result) {
+        attachFileList.value = []
+        result.forEach(element => {
+            const file = {
+                ...element,
+                checked: false,
+                url: `http://183.230.44.139:8090/mobile/sys/attach/view-image?token=${store.getters['token']}&id=${element.id}`
+            }
+            attachFileList.value.push(file)
+        });
+    }
+
+}
+//上传文件
+const handleUploadAttach = async (option: UploadRequestOptions) => {
+    console.log(option)
+    let formData = new FormData();
+    formData.append("file", option.file);
+    formData.append("token", store.getters['token']);
+    formData.append("loginName", JSON.parse(store.getters['loginInfo']).loginName);
+
+    let result = await uploadAttach(formData)
+    if (result) {
+        attachFileList.value = attachFileList.value.filter(i => !i.raw)
+        attachFileList.value.push({
+            ...result,
+            checked: false,
+            url: `http://183.230.44.139:8090/mobile/sys/attach/view-image?token=${store.getters['token']}&id=${result.id}`
+        })
+    }
+    else {
+        option.onError(result);
+    }
+}
+const handleAttachPreview = (file) => {
+    file.status = ""
+    console.log(file)
+}
+
 
 //签到
 const handleCheck = () => {
@@ -270,6 +368,7 @@ const convertTime = (time: number) => {
 //按钮状态
 const disabled = ref(false)
 nextTick(() => {
+    getAttach();
     //获取实习信息
     getLocation()
         .then((data) => {
@@ -308,6 +407,7 @@ nextTick(() => {
                     timerPicker.value = new Date(0, 0, 0, data[0], data[1])
                 }
             })
+
         })
 
     time.timer = setInterval(() => {
